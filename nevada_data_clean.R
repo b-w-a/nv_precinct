@@ -180,6 +180,8 @@ dem_churchill$county <- sprintf("%03s",dem_churchill$county)
 dem_churchill$precinct <- sprintf("%04s", dem_churchill$precinct)
 head(dem_churchill)
 
+# fix washoe
+dem_washoe$precinct <- substring(dem_washoe$precinct, 1, 4)
 
 dems <- rbind(dem_clark, dem_washoe, dem_elko, dem_carson, dem_lyon, dem_nye, dem_douglas, dem_churchill)
 

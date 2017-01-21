@@ -234,7 +234,7 @@ grob <- arrangeGrob(weighted, plot, nrow = 1)
 
 ggsave("/Users/bryanwilcox/Dropbox/2016 Voter Turnout/data/nevada/nv_precinct/nv_indy.png", grob, height = 8, width = 14)
 
-# precinct wins 
+# precinct wins calcualtions
 
 length(which(df$pct_latino > .50))
 
@@ -242,4 +242,59 @@ length(which(df$pct_latino > .50 & df$cortezmasto_margin > 0))
 length(which(df$pct_latino > .50 & df$cortezmasto_margin == 0))
 length(which(df$pct_latino > .50 & df$cortezmasto_margin < 0))
 
-26+4+3
+# spanish 
+df <- gather(data,candidate, pct_vote ,c(pct_clinton, pct_trump, pct_obama, pct_romney))
+
+drop <- which(df$pct_vote == 1 | df$pct_vote == 0 )
+df <- df[-drop,]
+drop <- which(df$pct_latino == 1)
+df <- df[-drop,]
+
+weighted <- ggplot(df, aes(x=pct_latino, y = pct_vote, color = candidate, weight = votes_2016, size = votes_2016)) + geom_point(alpha = .10) + 
+  scale_color_manual(values = c('blue', 'turquoise', 'darkred', 'red'), 
+                     breaks = c('pct_clinton', 'pct_obama', 'pct_romney', 'pct_trump'),
+                     labels = c('Clinton', 'Obama','Romney', 'Trump'), 
+                     name = "Candidato") + 
+  stat_smooth(se = F) + 
+  theme_bw() + scale_y_continuous(limits=c(0,1), breaks = c(seq(0,1,.1))) + 
+  labs(title = "Voto Presidencial de Nevada: Resultados Oficiales a Nivel de Distro Electoral", 
+       x = "Porcentaje de Votantes Latinos Registrados en Distrito Electoral", y = "Porcentaje del Voto Presidencial") + 
+  guides(size=F)
+
+ggsave("/Users/bryanwilcox/Dropbox/2016 Voter Turnout/data/nevada/nv_precinct/all_candiates_spanish.png", weighted, height = 8, width = 10)
+
+# net difference votes 
+df <- data %>% dplyr::select(county_prec, berkley , heller, cortezmasto ,heck,pct_latino)
+df <- df %>% mutate(cortezmasto_margin = cortezmasto - berkley, 
+                    direction = ifelse(cortezmasto_margin > 0, "Cortez-Masto Mejora", "Cortez-Masto Empeora"))
+
+
+plot <- ggplot(df, aes(x=pct_latino, y = cortezmasto_margin, color = direction)) + geom_point(alpha = .25) + 
+  scale_color_manual(values = c('red', 'blue'), name = "Direcci\u{f3}n", breaks = c("Cortez-Masto Mejora", "Cortez-Masto Empeora")) + 
+  theme_bw() + labs(title = "Voto del Senado de Nevada: Resultados Oficiales a Nivel de Distro Electoral", 
+                    y = "Diferencia neta de Cortez-Masto (Cortez-Masto 16 - Berkely 12)", 
+                    x = "Porcentaje de Votantes Latinos Registrados en Distrito Electoral") + 
+  geom_hline(yintercept = 0, lty =2 ) + 
+  scale_y_continuous(limits=c(-250,250))
+
+ggsave("/Users/bryanwilcox/Dropbox/2016 Voter Turnout/data/nevada/nv_precinct/net_diff_senate_spanish.png", plot, height = 8, width = 10)
+
+El voto presidenciales de Nevada
+Resultados oficiales de la elecci\u{f3}n nivel de recinto
+
+Candidate = Candidato
+
+y-axis: por ciento del voto presidencial gan\u{f3}
+x-axis: por ciento latino en el recinto de votaci\u{f3}n
+
+
+
+El voto del Senado de Nevada
+Resultados oficiales de la elecci\u{f3}n nivel de recinto
+
+Dirección 
+Improves=aumenta
+Worsens=disminuye
+
+y-axis: Diferencia total de votos ganados ‘16 menos ‘12
+x-axis: por ciento latino en el recinto de votaci\u{f3}n
